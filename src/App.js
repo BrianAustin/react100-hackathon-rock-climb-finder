@@ -1,16 +1,74 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import Climb from './climb.js';
 import './App.css';
+import axios from 'axios';
+// import Server from './server/server';
 
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      climbsArray: []
+      locationArray: [],
+      climbsArray: [],
+      geocodeArray: [],
+      locationToSearch: '',
+      climbsToReturn: '',
+      milesFromLocation: '',
+      minDifficulty: '',
+      maxDifficulty: ''
     };
   }
 
+  handleClick = (e) => {
+    e.preventDefault();
+    // // variables for MapQuest api call
+    // const mapQuestKey = 'ttmWvZTB4NnABOjWmPBrcEClc5wVnQQM';
+    // const location = (this.state.locationToSearch).replace(/ /g, '');
+    // // variables for MP api call
+    // const mpKey = '111836580-3a6652ea1fbf0462e6afc9407be3481f';
+    // const { lat, lng } = this.state.locationArray.results.locations.latLng;
+    // const climbsToReturn = this.state.climbsToReturn;
+    // const milesFromLocation = this.state.milesFromLocation;
+    // const minDifficulty = this.state.minDifficulty;
+    // const maxDifficulty = this.state.maxDifficulty;
+
+    if(this.state.locationToSearch === '') {
+      return alert('Please enter a location');
+    } 
+    // else {
+    //     axios
+    //       .get('http://www.mapquestapi.com/geocoding/v1/address?key=' + mapQuestKey + '&location=' + location)
+    //       .then((res) => {
+    //         res.status(200).json(response.data);
+    //       })
+    // }
+  }    
+
+  updateLocationToSearch = (e) =>
+    this.setState({
+      locationToSearch: e.target.value
+    });
+
+  updateClimbsToReturn = (e) =>
+    this.setState({
+      climbsToReturn: e.target.value
+    });
+
+  updateMilesFromLocation = (e) =>
+    this.setState({
+      milesFromLocation: e.target.value
+    });
+
+  updateMinDifficulty = (e) =>
+    this.setState({
+      minDifficulty: e.target.value
+    });
+
+  updateMaxDifficulty = (e) =>
+    this.setState({
+      maxDifficulty: e.target.value
+    });
 
   render() {
     return (
@@ -18,16 +76,21 @@ class App extends Component {
         <div className='container text-left'>
           <div className='page-header'>
             <h1>Find a Rock Climb</h1>
-            <p className='lead'>Powered by Mountain Project and Google</p>
+            <p className='lead'>Powered by Mountain Project and MapQuest</p>
           </div>
           <div className='row'>
-            <form className='col-md-12'>
+            <form className='col-md-12' onSubmit={this.handleClick}>
               <div className='panel panel-default'>
                 <div className='panel-heading font-weight-bold'>Show me climbs near...</div>
                 <div className='panel-body'>
                   <div className='form-group col-md-10'>
                     <label>Location to Search</label>
-                    <textarea type='text' rows='1' className='form-control input-md' />  
+                    <textarea 
+                      type='text' 
+                      rows='1'
+                      placeholder='ex. Amboy, CA' 
+                      className='form-control input-md'
+                      onChange={this.updateLocationToSearch} />  
                   </div>
                   <div className='form-group col-md-3'>
                     <label>Number of Climbs to Return</label>
@@ -37,7 +100,8 @@ class App extends Component {
                       type='number'
                       placeholder='50 to 500 climbs'
                       min='50'
-                      max='500' />
+                      max='500'
+                      onChange={this.updateClimbsToReturn} />
                   </div>
                   <div className='form-group col-md-3'>
                     <label>Number of Miles from Location</label>
@@ -47,13 +111,15 @@ class App extends Component {
                       type='number'
                       placeholder='30 to 200 miles'
                       min='30'
-                      max='200' />
+                      max='200'
+                      onChange={this.updateMilesFromLocation} />
                   </div> 
                   <div className='form-group col-md-3'>
                     <label>Minimum Difficulty</label>
                     <select 
                       className='form-control input-md' 
-                      size='1'>
+                      size='1'
+                      onChange={this.updateMinDifficulty}>
                         <option value='0'>Select Minimum Difficulty</option>
                         <option value='5.0'>5.0</option>
                         <option value='5.1'>5.1</option>
@@ -89,7 +155,8 @@ class App extends Component {
                     <select 
                       className='form-control input-md' 
                       size='1' 
-                      placeholder='Select Maximum Difficulty'>
+                      placeholder='Select Maximum Difficulty'
+                      onChange={this.updateMaxDifficulty}>
                         <option value='0'>Select Maximum Difficulty</option>
                         <option value='5.5'>5.5</option>
                         <option value='5.6'>5.6</option>
@@ -118,11 +185,14 @@ class App extends Component {
                   <div className='col-md-8'>
                     <button className='btn btn-success form-control'>Find Some Climbs</button>
                   </div>
-                  {/* panel body end below     */}
+                  {/* panel body end below  */}
                 </div>
               </div>
             </form>
           {/* end row div below */}
+          </div>
+          <div name='climb-component'>
+            <Climb />
           </div>
           {/* end container div below  */}
         </div>
