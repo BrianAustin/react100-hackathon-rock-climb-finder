@@ -24,10 +24,39 @@ class App extends Component {
     const location = (this.state.locationToSearch).replace(/ /g, '');
     // variables for MP api call
     const mpKey = '111836580-3a6652ea1fbf0462e6afc9407be3481f';
-    // const climbsToReturn = this.state.climbsToReturn;
-    // const milesFromLocation = this.state.milesFromLocation;
-    // const minDifficulty = this.state.minDifficulty;
-    // const maxDifficulty = this.state.maxDifficulty;
+    // handling optional arguments below
+    const milesFromLocation = this.state.milesFromLocation;
+      milesFromLocationURL = (milesFromLocation) => { 
+        if(milesFromLocation === '') {
+          return '';
+        } else {
+          return '&maxDistance=' + milesFromLocation;
+        }
+      } 
+    const climbsToReturn = this.state.climbsToReturn;
+      climbsToReturnURL = (climbsToReturn) => { 
+        if(climbsToReturn === '') {
+          return '';
+        } else {
+          return '&maxResults=' + climbsToReturn;
+        }
+      } 
+    const minDifficulty = this.state.minDifficulty;
+      minDifficultyURL = (minDifficulty) => { 
+        if(minDifficulty === '') {
+          return '';
+        } else {
+          return '&minDiff=' + minDifficulty;
+        }
+      } 
+    const maxDifficulty = this.state.maxDifficulty;
+      maxDifficultyURL = (maxDifficulty) => { 
+        if(maxDifficulty === '') {
+          return '';
+        } else {
+          return '&maxDiff=' + maxDifficulty;
+        }
+      } 
 
     if(this.state.locationToSearch === '') {
       return alert('Please enter a location');
@@ -37,27 +66,37 @@ class App extends Component {
           .get('http://www.mapquestapi.com/geocoding/v1/address?key=' + mapQuestKey + '&location=' + location)
           .then(response => {
             axios
-            .get('https://www.mountainproject.com/data/get-routes-for-lat-lon?lat=' + response.data.results[0].locations[0].latLng.lat + '&lon=' + response.data.results[0].locations[0].latLng.lng + '&key=' + mpKey)  
+            .get('https://www.mountainproject.com/data/get-routes-for-lat-lon?lat=' 
+                  + response.data.results[0].locations[0].latLng.lat 
+                  + '&lon=' + response.data.results[0].locations[0].latLng.lng 
+                  + '&key=' 
+                  + mpKey)  
             .then(response => response.data)
             .then(climbsArray => this.setState({ climbsArray }));
           }) 
     }
-  console.log(location);
+  this.setState({ 
+    locationToSearch: '',
+    milesFromLocation: '',
+    climbsToReturn: '',
+    minDifficulty: '',
+    maxDifficulty: '' 
+  })
   }    
 
   emptyClimbsArrayOrNot = (climbsArrayLength) => {
-    if(climbsArrayLength == 0) {
+    if(climbsArrayLength === 0) {
       return <div></div>
     } else {
         return this.state.climbsArray.routes.map(climb => (
           <Climb 
-            img={climb.imgSmall}
+            img={climb.imgSqSmall}
             location={climb.location} 
             name={climb.name}
             pitches={climb.pitches}
             rating={climb.rating}
             stars={climb.stars}
-            type={climb.stars}
+            type={climb.type}
             url={climb.url} /> 
         ))
     }
