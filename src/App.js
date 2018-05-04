@@ -2,16 +2,13 @@ import React, { Component } from 'react';
 import Climb from './climb.js';
 import './App.css';
 import axios from 'axios';
-// import Server from './server/server';
 
 class App extends Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      locationArray: [],
       climbsArray: [],
-      geocodeArray: [],
       locationToSearch: '',
       climbsToReturn: '',
       milesFromLocation: '',
@@ -22,12 +19,11 @@ class App extends Component {
 
   handleClick = (e) => {
     e.preventDefault();
-    // // variables for MapQuest api call
-    // const mapQuestKey = 'ttmWvZTB4NnABOjWmPBrcEClc5wVnQQM';
-    // const location = (this.state.locationToSearch).replace(/ /g, '');
-    // // variables for MP api call
-    // const mpKey = '111836580-3a6652ea1fbf0462e6afc9407be3481f';
-    // const { lat, lng } = this.state.locationArray.results.locations.latLng;
+    // variables for MapQuest api call
+    const mapQuestKey = 'ttmWvZTB4NnABOjWmPBrcEClc5wVnQQM';
+    const location = (this.state.locationToSearch).replace(/ /g, '');
+    // variables for MP api call
+    const mpKey = '111836580-3a6652ea1fbf0462e6afc9407be3481f';
     // const climbsToReturn = this.state.climbsToReturn;
     // const milesFromLocation = this.state.milesFromLocation;
     // const minDifficulty = this.state.minDifficulty;
@@ -36,39 +32,42 @@ class App extends Component {
     if(this.state.locationToSearch === '') {
       return alert('Please enter a location');
     } 
-    // else {
-    //     axios
-    //       .get('http://www.mapquestapi.com/geocoding/v1/address?key=' + mapQuestKey + '&location=' + location)
-    //       .then((res) => {
-    //         res.status(200).json(response.data);
-    //       })
-    // }
+    else {
+        axios
+          .get('http://www.mapquestapi.com/geocoding/v1/address?key=' + mapQuestKey + '&location=' + location)
+          .then(response => {
+            axios
+            .get('https://www.mountainproject.com/data/get-routes-for-lat-lon?lat=' + response.data.results[0].locations[0].latLng.lat + '&lon=' + response.data.results[0].locations[0].latLng.lng + '&key=' + mpKey)  
+            .then(response => response.data)
+            .then(climbsArray => this.setState({ climbsArray }));
+          }) 
+    }
+  console.log(location);
   }    
 
-  updateLocationToSearch = (e) =>
-    this.setState({
-      locationToSearch: e.target.value
-    });
+  emptyClimbsArrayOrNot = (climbsArrayLength) => {
+    if(climbsArrayLength == 0) {
+      return <div></div>
+    } else {
+        return this.state.climbsArray.routes.map(climb => (
+          <Climb 
+            img={climb.imgSmall}
+            location={climb.location} 
+            name={climb.name}
+            pitches={climb.pitches}
+            rating={climb.rating}
+            stars={climb.stars}
+            type={climb.stars}
+            url={climb.url} /> 
+        ))
+    }
+  }
 
-  updateClimbsToReturn = (e) =>
-    this.setState({
-      climbsToReturn: e.target.value
-    });
-
-  updateMilesFromLocation = (e) =>
-    this.setState({
-      milesFromLocation: e.target.value
-    });
-
-  updateMinDifficulty = (e) =>
-    this.setState({
-      minDifficulty: e.target.value
-    });
-
-  updateMaxDifficulty = (e) =>
-    this.setState({
-      maxDifficulty: e.target.value
-    });
+  updateLocationToSearch = (e) => this.setState({locationToSearch: e.target.value});
+  updateClimbsToReturn = (e) => this.setState({climbsToReturn: e.target.value});
+  updateMilesFromLocation = (e) => this.setState({milesFromLocation: e.target.value});
+  updateMinDifficulty = (e) => this.setState({minDifficulty: e.target.value});
+  updateMaxDifficulty = (e) => this.setState({maxDifficulty: e.target.value });
 
   render() {
     return (
@@ -88,7 +87,8 @@ class App extends Component {
                     <textarea 
                       type='text' 
                       rows='1'
-                      placeholder='ex. Amboy, CA' 
+                      placeholder='ex. Amboy, CA'
+                      value={this.state.locationToSearch} 
                       className='form-control input-md'
                       onChange={this.updateLocationToSearch} />  
                   </div>
@@ -192,7 +192,7 @@ class App extends Component {
           {/* end row div below */}
           </div>
           <div name='climb-component'>
-            <Climb />
+            {this.emptyClimbsArrayOrNot(this.state.climbsArray.length)}
           </div>
           {/* end container div below  */}
         </div>
