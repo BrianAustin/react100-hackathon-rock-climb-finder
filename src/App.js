@@ -24,39 +24,6 @@ class App extends Component {
     const location = (this.state.locationToSearch).replace(/ /g, '');
     // variables for MP api call
     const mpKey = '111836580-3a6652ea1fbf0462e6afc9407be3481f';
-    // handling optional arguments below
-    const milesFromLocation = this.state.milesFromLocation;
-      milesFromLocationURL = (milesFromLocation) => { 
-        if(milesFromLocation === '') {
-          return '';
-        } else {
-          return '&maxDistance=' + milesFromLocation;
-        }
-      } 
-    const climbsToReturn = this.state.climbsToReturn;
-      climbsToReturnURL = (climbsToReturn) => { 
-        if(climbsToReturn === '') {
-          return '';
-        } else {
-          return '&maxResults=' + climbsToReturn;
-        }
-      } 
-    const minDifficulty = this.state.minDifficulty;
-      minDifficultyURL = (minDifficulty) => { 
-        if(minDifficulty === '') {
-          return '';
-        } else {
-          return '&minDiff=' + minDifficulty;
-        }
-      } 
-    const maxDifficulty = this.state.maxDifficulty;
-      maxDifficultyURL = (maxDifficulty) => { 
-        if(maxDifficulty === '') {
-          return '';
-        } else {
-          return '&maxDiff=' + maxDifficulty;
-        }
-      } 
 
     if(this.state.locationToSearch === '') {
       return alert('Please enter a location');
@@ -65,23 +32,33 @@ class App extends Component {
         axios
           .get('http://www.mapquestapi.com/geocoding/v1/address?key=' + mapQuestKey + '&location=' + location)
           .then(response => {
+            const obj = { 
+              maxDiff: this.state.maxDifficulty,
+              minDiff: this.state.minDifficulty,
+              maxDistance: this.state.milesFromLocation,
+              maxResults: this.state.climbsToReturn
+            }
+            let query = '';
+            Object.keys(obj).forEach(key => obj[key] !== '' ? query += `&${key}=${obj[key]}` : '')
             axios
-            .get('https://www.mountainproject.com/data/get-routes-for-lat-lon?lat=' 
-                  + response.data.results[0].locations[0].latLng.lat 
-                  + '&lon=' + response.data.results[0].locations[0].latLng.lng 
-                  + '&key=' 
-                  + mpKey)  
-            .then(response => response.data)
-            .then(climbsArray => this.setState({ climbsArray }));
+              .get('https://www.mountainproject.com/data/get-routes-for-lat-lon?lat=' 
+                    + response.data.results[0].locations[0].latLng.lat 
+                    + '&lon=' + response.data.results[0].locations[0].latLng.lng 
+                    + '&key=' 
+                    + mpKey
+                    + query               
+                  )  
+              .then(response => response.data)
+              .then(climbsArray => this.setState({ 
+                climbsArray,
+                locationToSearch: '',
+                milesFromLocation: '',
+                climbsToReturn: '',
+                minDifficulty: '',
+                maxDifficulty: ''
+              }));
           }) 
     }
-  this.setState({ 
-    locationToSearch: '',
-    milesFromLocation: '',
-    climbsToReturn: '',
-    minDifficulty: '',
-    maxDifficulty: '' 
-  })
   }    
 
   emptyClimbsArrayOrNot = (climbsArrayLength) => {
@@ -140,6 +117,7 @@ class App extends Component {
                       placeholder='50 to 500 climbs'
                       min='50'
                       max='500'
+                      value={this.state.climbsToReturn} 
                       onChange={this.updateClimbsToReturn} />
                   </div>
                   <div className='form-group col-md-3'>
@@ -151,6 +129,7 @@ class App extends Component {
                       placeholder='30 to 200 miles'
                       min='30'
                       max='200'
+                      value={this.state.milesFromLocation} 
                       onChange={this.updateMilesFromLocation} />
                   </div> 
                   <div className='form-group col-md-3'>
@@ -158,6 +137,7 @@ class App extends Component {
                     <select 
                       className='form-control input-md' 
                       size='1'
+                      value={this.state.minDifficulty} 
                       onChange={this.updateMinDifficulty}>
                         <option value='0'>Select Minimum Difficulty</option>
                         <option value='5.0'>5.0</option>
@@ -195,6 +175,7 @@ class App extends Component {
                       className='form-control input-md' 
                       size='1' 
                       placeholder='Select Maximum Difficulty'
+                      value={this.state.maxDifficulty} 
                       onChange={this.updateMaxDifficulty}>
                         <option value='0'>Select Maximum Difficulty</option>
                         <option value='5.5'>5.5</option>
