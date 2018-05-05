@@ -26,7 +26,7 @@ class App extends Component {
     const mpKey = '111836580-3a6652ea1fbf0462e6afc9407be3481f';
 
     if(this.state.locationToSearch === '') {
-      return alert('Please enter a location');
+      return alert('Please enter a location; the other fields are optional');
     } 
     else {
         axios
@@ -56,8 +56,12 @@ class App extends Component {
                 climbsToReturn: '',
                 minDifficulty: '',
                 maxDifficulty: ''
-              }));
-          }) 
+              })
+            );  
+        })
+      .catch(error => {
+        console.log(error);
+      })   
     }
   }    
 
@@ -66,15 +70,17 @@ class App extends Component {
       return <div></div>
     } else {
         return this.state.climbsArray.routes.map(climb => (
+
           <Climb 
-            img={climb.imgSqSmall}
-            location={climb.location} 
-            name={climb.name}
-            pitches={climb.pitches}
-            rating={climb.rating}
-            stars={climb.stars}
-            type={climb.type}
-            url={climb.url} /> 
+          img={climb.imgSmallMed}
+          location={climb.location} 
+          name={climb.name}
+          pitches={climb.pitches}
+          rating={climb.rating}
+          stars={climb.stars}
+          type={climb.type}
+          url={climb.url}
+          key={climb.id} />
         ))
     }
   }
@@ -90,16 +96,16 @@ class App extends Component {
       <div className="App">
         <div className='container text-left'>
           <div className='page-header'>
-            <h1>Find a Rock Climb</h1>
-            <p className='lead'>Powered by Mountain Project and MapQuest</p>
+            <h1 className='text-white'>Find a Rock Climb</h1>
+            <p className='lead text-white'>Powered by Mountain Project and MapQuest</p>
           </div>
           <div className='row'>
             <form className='col-md-12' onSubmit={this.handleClick}>
               <div className='panel panel-default'>
                 <div className='panel-heading font-weight-bold'>Show me climbs near...</div>
                 <div className='panel-body'>
-                  <div className='form-group col-md-10'>
-                    <label>Location to Search</label>
+                  <div className='form-group col-md-12'>
+                    <label>Location to Search <small><em>(City, State)</em></small></label>
                     <textarea 
                       type='text' 
                       rows='1'
@@ -109,7 +115,7 @@ class App extends Component {
                       onChange={this.updateLocationToSearch} />  
                   </div>
                   <div className='form-group col-md-3'>
-                    <label>Number of Climbs to Return</label>
+                    <label>Number of Climbs to Return<br/><small><em>(optional)</em></small></label>
                     <input 
                       className='form-control input-md' 
                       size='1' 
@@ -121,7 +127,7 @@ class App extends Component {
                       onChange={this.updateClimbsToReturn} />
                   </div>
                   <div className='form-group col-md-3'>
-                    <label>Number of Miles from Location</label>
+                    <label>Number of Miles from Location<br/><small><em>(optional)</em></small></label>
                     <input 
                       className='form-control input-md' 
                       size='1' 
@@ -133,7 +139,7 @@ class App extends Component {
                       onChange={this.updateMilesFromLocation} />
                   </div> 
                   <div className='form-group col-md-3'>
-                    <label>Minimum Difficulty</label>
+                    <label>Minimum Difficulty<br/><small><em>(optional)</em></small></label>
                     <select 
                       className='form-control input-md' 
                       size='1'
@@ -170,7 +176,7 @@ class App extends Component {
                     </select>  
                   </div> 
                   <div className='form-group col-md-3'>
-                    <label>Maximum Difficulty</label>
+                    <label>Maximum Difficulty<br/><small><em>(optional)</em></small></label>
                     <select 
                       className='form-control input-md' 
                       size='1' 
@@ -202,8 +208,8 @@ class App extends Component {
                         <option value='5.14'>5.14</option>
                     </select>  
                   </div>
-                  <div className='col-md-8'>
-                    <button className='btn btn-success form-control'>Find Some Climbs</button>
+                  <div className='col-md-12'>
+                    <button className='btn btn-primary form-control'>Find Some Climbs</button>
                   </div>
                   {/* panel body end below  */}
                 </div>
