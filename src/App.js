@@ -32,12 +32,14 @@ class App extends Component {
         axios
           .get('http://www.mapquestapi.com/geocoding/v1/address?key=' + mapQuestKey + '&location=' + location)
           .then(response => {
+            // Below, creates object for optional parameters to be used with Object.keys 
             const obj = { 
               maxDiff: this.state.maxDifficulty,
               minDiff: this.state.minDifficulty,
               maxDistance: this.state.milesFromLocation,
               maxResults: this.state.climbsToReturn
             }
+            // Below, dealing with inserting optional parameters into api call to Mountain Project
             let query = '';
             Object.keys(obj).forEach(key => obj[key] !== '' ? query += `&${key}=${obj[key]}` : '')
             axios
