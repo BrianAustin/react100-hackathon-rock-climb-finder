@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import Climb from './climb.js';
+import CurrentSearch from './currentSearch.js';
 import './App.css';
 import axios from 'axios';
 
@@ -13,11 +14,16 @@ class App extends Component {
       climbsToReturn: '',
       milesFromLocation: '',
       minDifficulty: '',
-      maxDifficulty: ''
+      maxDifficulty: '',
+      locationSearched: '',
+      numOfClimbsReturned: '',
+      numMilesFromLocation: '',
+      minDiffSearched: '',
+      maxDiffSearched:''
     };
   }
 
-  handleClick = (e) => {
+  handleClick = e => {
     e.preventDefault();
     // variables for MapQuest api call
     const mapQuestKey = 'ttmWvZTB4NnABOjWmPBrcEClc5wVnQQM';
@@ -53,6 +59,11 @@ class App extends Component {
               .then(response => response.data)
               .then(climbsArray => this.setState({ 
                 climbsArray,
+                locationSearched: this.state.locationToSearch,
+                numOfClimbsReturned: this.state.climbsToReturn,
+                numMilesFromLocation: this.state.milesFromLocation,
+                minDiffSearched: this.state.minDifficulty,
+                maxDiffSearched: this.state.maxDifficulty,
                 locationToSearch: '',
                 milesFromLocation: '',
                 climbsToReturn: '',
@@ -67,31 +78,51 @@ class App extends Component {
     }
   }    
 
-  emptyClimbsArrayOrNot = (climbsArrayLength) => {
+  emptyClimbsArrayOrNot = climbsArrayLength => {
     if(climbsArrayLength === 0) {
-      return <div></div>
+      return null;
     } else {
-        return this.state.climbsArray.routes.map(climb => (
+      const groups = this.state.climbsArray.routes.map((group, i) => {
+        return i % 4 === 0 ? this.state.climbsArray.routes.slice(i, i + 4) : null;
+      }).filter(group => group != null);
 
-          <Climb 
-          img={climb.imgSmallMed}
-          location={climb.location} 
-          name={climb.name}
-          pitches={climb.pitches}
-          rating={climb.rating}
-          stars={climb.stars}
-          type={climb.type}
-          url={climb.url}
-          key={climb.id} />
-        ))
+      return (
+        groups.map((result, index) => {
+          return (<div className='card-group mb-4' key={index}>
+            {result.map(climb => <Climb 
+              img={climb.imgSmallMed}
+              location={climb.location} 
+              name={climb.name}
+              pitches={climb.pitches}
+              rating={climb.rating}
+              stars={climb.stars}
+              type={climb.type}
+              url={climb.url}
+              key={climb.id} />)}
+          </div>)
+        })
+      );
     }
   }
 
-  updateLocationToSearch = (e) => this.setState({locationToSearch: e.target.value});
-  updateClimbsToReturn = (e) => this.setState({climbsToReturn: e.target.value});
-  updateMilesFromLocation = (e) => this.setState({milesFromLocation: e.target.value});
-  updateMinDifficulty = (e) => this.setState({minDifficulty: e.target.value});
-  updateMaxDifficulty = (e) => this.setState({maxDifficulty: e.target.value });
+  displayLocationSearched = climbsArrayLength => {
+    if(climbsArrayLength === 0) {
+      return <div></div>
+    } else {
+        return <CurrentSearch 
+                locationSearched={this.state.locationSearched}
+                numOfClimbsReturned={this.state.numOfClimbsReturned}
+                numMilesFromLocation={this.state.numMilesFromLocation}
+                minDiffSearched={this.state.minDiffSearched}
+                maxDiffSearched={this.state.maxDiffSearched} />
+  }
+}
+
+  updateLocationToSearch = e => this.setState({locationToSearch: e.target.value});
+  updateClimbsToReturn = e => this.setState({climbsToReturn: e.target.value});
+  updateMilesFromLocation = e => this.setState({milesFromLocation: e.target.value});
+  updateMinDifficulty = e => this.setState({minDifficulty: e.target.value});
+  updateMaxDifficulty = e => this.setState({maxDifficulty: e.target.value });
 
   render() {
     return (
@@ -218,6 +249,10 @@ class App extends Component {
               </div>
             </form>
           {/* end row div below */}
+          </div>
+          {/* currentSearch component below */}
+          <div>
+            {this.displayLocationSearched(this.state.climbsArray.length)}
           </div>
           <div name='climb-component'>
             {this.emptyClimbsArrayOrNot(this.state.climbsArray.length)}
